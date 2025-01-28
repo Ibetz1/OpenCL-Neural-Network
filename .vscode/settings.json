@@ -8,6 +8,8 @@
         "functional": "cpp",
         "limits": "cpp",
         "tuple": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "map": "cpp",
+        "vector": "cpp"
     }
 }

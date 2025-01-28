@@ -2,7 +2,15 @@
 
 namespace OpenCL {
 
-    Device::Device() {}
+    Device::Device() {
+        load_platforms();
+    }
+    
+    Device::Device(cl_device_type type, U32 platform) {
+        load_platforms();
+        select(platform, type);
+    }
+
     Device::~Device() {
         if (platforms != nullptr) {
             free(platforms);
@@ -47,7 +55,7 @@ namespace OpenCL {
         }
     }
 
-    cl_device_id& Device::get_device() {
+    cl_device_id& Device::get_id() {
         return device;
     }
 

@@ -4,7 +4,7 @@ namespace OpenCL {
 
     Context::Context(Device& dev) : device(dev) {
         S32 status = 0;
-        context = clCreateContext(0, 1, &device.get_device(), NULL, NULL, &status);
+        context = clCreateContext(0, 1, &device.get_id(), NULL, NULL, &status);
         if (status != CL_SUCCESS) {
             THROW("failed to create OpenCL context: sts %i", status);
         } else {
@@ -17,8 +17,8 @@ namespace OpenCL {
         LOGI("released OpenCL context");
     }
 
-    cl_device_id& Context::get_device() {
-        return device.get_device();
+    Device& Context::get_device() {
+        return device;
     }
 
     cl_context& Context::get_context() {

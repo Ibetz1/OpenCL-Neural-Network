@@ -10,6 +10,7 @@ namespace OpenCL {
         USZ program_len = 0;
 
     public:
+        Program();
         Program(Context& ctx, const char* source);
         ~Program();
 
@@ -17,6 +18,11 @@ namespace OpenCL {
             returns openCL program instance reference
         */
         cl_program& get_program();
+
+        /*
+            reads file into a buffer, this will allocate to the size of the file
+        */
+        static char* read_file(const char* path);
     };
 
 };

@@ -7,50 +7,51 @@ namespace OpenCL {
     struct CommandBuffer {
     private:
         Context& context;
-        cl_mem cl_input = nullptr;
-        cl_mem cl_output = nullptr;
+        std::vector<cl_mem> buffers;
         USZ size = 0;
+        USZ count = 2;
         T* output = nullptr;
 
     public:
-        CommandBuffer(Context& ctx, USZ size);
+        CommandBuffer(Context& ctx, USZ size, USZ count = 2);
 
         ~CommandBuffer();
 
         /*
-            push data onto a command queue via the command buffer
+            push data onto a command queue from the command buffer
         */
-        void queue_data(CommandQueue& queue, T* data, USZ length);
+        void queue_data(CommandQueue& queue, USZ buffer_id, T* data, USZ length);
 
         /*
             read data popped from output buffer
         */
-        void read_data(CommandQueue& queue, USZ length);
+        void read_data(CommandQueue& queue, USZ buffer_id, USZ length);
+
+        /*
+            flushes the output buffer
+        */
+        void flush();
 
         /*
             bind kernel to command buffer
         */
-        void bind_kernel(Kernel& kernel);
+        template <typename U>
+        void bind_kernel(Kernel& kernel, USZ idx, const U& val) const;
 
         /*
-            push data queued to kernel onto the kernel device
+            returns input buffer at index
         */
-        void push_to_kernel(Kernel& kernel, CommandQueue& queue, USZ& local_size, USZ& global_size);
-
-        /*
-            get the OpenCL memory instance of the output buffer
-        */
-        cl_mem& get_output_mem();
-
-        /*
-            get the OpenCL memory instance of the input buffer
-        */
-        cl_mem& get_input_mem();
+        cl_mem& operator[](USZ idx);
 
         /*
             get the current output buffer
         */
         T*& get_output_buffer();
+
+        /*
+            size of the command buffer
+        */
+        U32 get_size() const;
     };
 
 };

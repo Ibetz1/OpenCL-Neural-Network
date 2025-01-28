@@ -17,6 +17,15 @@ namespace OpenCL {
         */
         cl_command_queue& get_queue();
 
+        /*
+            waits for queue
+        */
+        void wait();
+
+        /*
+            returns queue context
+        */  
+        Context& get_context();
     };
 
 };

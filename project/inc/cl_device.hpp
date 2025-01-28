@@ -18,6 +18,7 @@ namespace OpenCL {
         };
 
         Device();
+        Device(cl_device_type type, U32 platform = 0);
         ~Device();
 
         /*
@@ -33,7 +34,7 @@ namespace OpenCL {
         /*
             returns the openCL device ID
         */
-        cl_device_id& get_device();
+        cl_device_id& get_id();
 
         /*
             returns the openCL platform ID by an index

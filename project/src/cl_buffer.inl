@@ -7,31 +7,33 @@ namespace OpenCL {
     // CommandBuffer<T>::
 
     template <typename T> 
-    CommandBuffer<T>::CommandBuffer(Context& ctx, USZ size) : context(ctx), size(size) {
+    CommandBuffer<T>::CommandBuffer(Context& ctx, USZ size, USZ count) : context(ctx), size(size), count(count) {
+        if (count < 1) {
+            THROW("command buffer needs minimum of 1 cl_buffers");
+        }
+
         output = (T*) malloc(size * sizeof(T));
 
         // Create output memory buffer
         S32 status = 0;
-        cl_output = clCreateBuffer(ctx.get_context(), CL_MEM_WRITE_ONLY, size * sizeof(T), NULL, &status);
-        if (status != CL_SUCCESS) {
-            THROW("failed to create write buffer: %i", status);
-        } else {
-            LOGI("created output buffer size %i", size);
-        }
+        buffers.reserve(count);
 
-        // create input memory buffer
-        cl_input = clCreateBuffer(ctx.get_context(), CL_MEM_READ_ONLY, size * sizeof(T), NULL, &status);
-        if (status != CL_SUCCESS) {
-            THROW("failed to create read buffer: %i", status);
-        } else {
-            LOGI("created input buffer size %i", size);
+        for (int i = 0; i < count; i++) {
+            cl_mem buffer = clCreateBuffer(ctx.get_context(), CL_MEM_READ_ONLY, size * sizeof(T), NULL, &status);
+            if (status != CL_SUCCESS) {
+                THROW("failed to create read buffer: %i", status);
+            } else {
+                LOGI("added input buffer with size %i", size);
+            }
+            buffers.push_back(buffer);
         }
     }
 
     template <typename T> 
     CommandBuffer<T>::~CommandBuffer() {
-        clReleaseMemObject(cl_input);
-        clReleaseMemObject(cl_output);
+        for (cl_mem cl_buffer : buffers) {
+            clReleaseMemObject(cl_buffer);
+        }
 
         free(output);
 
@@ -39,13 +41,18 @@ namespace OpenCL {
     }
 
     template <typename T>
-    void CommandBuffer<T>::queue_data(CommandQueue& queue, T* data, USZ length) {
+    void CommandBuffer<T>::queue_data(CommandQueue& queue, USZ buffer_id, T* data, USZ length) {
         if (length > size) {
             THROW("command buffer overflow");
         }
 
+        if (buffer_id > count) {
+            THROW("invalid buffer id");
+        }
+
         S32 status = 0;
-        status = clEnqueueWriteBuffer(queue.get_queue(), cl_input, CL_TRUE, 0, sizeof(T) * length, data, 0, NULL, NULL);
+        cl_mem& buffer = buffers[buffer_id];
+        status = clEnqueueWriteBuffer(queue.get_queue(), buffer, CL_TRUE, 0, sizeof(T) * length, data, 0, NULL, NULL);
 
         if (status != CL_SUCCESS) {
             LOGE("failed to queue kernel data");
@@ -53,65 +60,43 @@ namespace OpenCL {
     }
 
     template <typename T>
-    void CommandBuffer<T>::read_data(CommandQueue& queue, USZ length) {
+    void CommandBuffer<T>::read_data(CommandQueue& queue, USZ buffer_id, USZ length) {
         if (length > size) {
             THROW("command buffer overflow");
         }
 
-        S32 status = 0;
-        status = clEnqueueReadBuffer(queue.get_queue(), cl_output, CL_TRUE, 0, sizeof(T) * length, output, 0, NULL, NULL);
+        if (buffer_id > count) {
+            THROW("invalid buffer id");
+        }
+
+        cl_mem& buffer = buffers[buffer_id];
+        S32 status = clEnqueueReadBuffer(queue.get_queue(), buffer, CL_TRUE, 0, sizeof(T) * length, output, 0, NULL, NULL);
         if (status != CL_SUCCESS) {
             LOGE("failed to read kernel output");
         }
     }
 
-    template <typename T> // TODO: break into a more fragmented approach to allow multiple command buffers
-    void CommandBuffer<T>::bind_kernel(Kernel& kernel) {
-        S32 status = 0;
+    template <typename T>
+    void CommandBuffer<T>::flush() {
+        memset(output, 0, sizeof(T) * size);
+    }
 
-        status = clSetKernelArg(kernel.get_kernel(), 0, sizeof(cl_mem), &cl_input);
-        if (status != CL_SUCCESS) {
-            THROW("failed to pass kernel argument %i", status);
-        }
-
-        status = clSetKernelArg(kernel.get_kernel(), 1, sizeof(cl_mem), &cl_output);
-        if (status != CL_SUCCESS) {
-            THROW("failed to pass kernel argument %i", status);
-        }
-
-        status = clSetKernelArg(kernel.get_kernel(), 2, sizeof(U32), &size);
+    template <typename T>
+    template <typename U>
+    void CommandBuffer<T>::bind_kernel(Kernel& kernel, USZ idx, const U& val) const {
+        S32 status = clSetKernelArg(kernel.get_kernel(), idx, sizeof(U), &val);
         if (status != CL_SUCCESS) {
             THROW("failed to pass kernel argument %i", status);
         }
     }
 
     template <typename T>
-    void CommandBuffer<T>::push_to_kernel(Kernel& kernel, CommandQueue& queue, USZ& local_size, USZ& global_size) {
-        S32 status = 0;
-
-        status = clGetKernelWorkGroupInfo(kernel.get_kernel(), context.get_device(), CL_KERNEL_WORK_GROUP_SIZE, sizeof(USZ), &local_size, NULL);
-
-        if (status != CL_SUCCESS) {
-            THROW("failed to get work group info");
+    cl_mem& CommandBuffer<T>::operator[](USZ buffer_id) {
+        if (buffer_id > count) {
+            THROW("invalid buffer id");
         }
 
-        status = clEnqueueNDRangeKernel(queue.get_queue(), kernel.get_kernel(), 1, NULL, &global_size, &local_size, 0, NULL, NULL);
-
-        if (status != CL_SUCCESS) {
-            THROW("failed to execute kernel");
-        }
-
-        clFinish(queue.get_queue());
-    }
-
-    template <typename T>
-    cl_mem& CommandBuffer<T>::get_output_mem() {
-        return cl_output;
-    }
-
-    template <typename T>
-    cl_mem& CommandBuffer<T>::get_input_mem() {
-        return cl_input;
+        return buffers[buffer_id];
     }
 
     template <typename T>
@@ -119,6 +104,10 @@ namespace OpenCL {
         return output;
     }
 
+    template <typename T>
+    U32 CommandBuffer<T>::get_size() const {
+        return (U32) size;
+    }
 };
 
 #endif

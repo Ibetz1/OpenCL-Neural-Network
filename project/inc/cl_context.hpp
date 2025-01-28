@@ -15,7 +15,7 @@ namespace OpenCL {
         /*
             returns the OpenCL device ID from its contained device
         */
-        cl_device_id& get_device();
+        Device& get_device();
 
         /*
             returns the OpenCL context instance
