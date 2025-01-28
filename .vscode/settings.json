@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "atomic": "cpp",
+        "*.tcc": "cpp",
+        "chrono": "cpp",
+        "random": "cpp",
+        "format": "cpp",
+        "functional": "cpp",
+        "limits": "cpp",
+        "tuple": "cpp",
+        "variant": "cpp"
+    }
+}
