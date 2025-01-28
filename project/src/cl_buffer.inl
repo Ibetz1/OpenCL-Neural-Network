@@ -65,7 +65,7 @@ namespace OpenCL {
         }
     }
 
-    template <typename T>
+    template <typename T> // TODO: break into a more fragmented approach to allow multiple command buffers
     void CommandBuffer<T>::bind_kernel(Kernel& kernel) {
         S32 status = 0;
 

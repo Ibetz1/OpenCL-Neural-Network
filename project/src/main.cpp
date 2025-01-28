@@ -5,6 +5,9 @@ using namespace OpenCL;
 /*
     TODO:
 
+    break out the bind_kernel function to allow for different parameter types and orders
+    
+
     make work group class containing:
 
     command queue
@@ -23,8 +26,12 @@ using namespace OpenCL;
         // ...
 */
 
-int main() {
+/*
+    TODO:
 
+*/
+
+int main() { 
     // data
 
     USZ global_work_size = KB(10);
@@ -73,5 +80,4 @@ int main() {
     }
 
     LOGI("got %i/%i same values", same, global_work_size);
-
 }
