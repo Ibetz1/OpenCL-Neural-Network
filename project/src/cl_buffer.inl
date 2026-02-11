@@ -3,16 +3,13 @@
 
 namespace OpenCL {
 
-    // template <typename T>
-    // CommandBuffer<T>::
-
     template <typename T> 
     CommandBuffer<T>::CommandBuffer(Context& ctx, USZ size, USZ count) : context(ctx), size(size), count(count) {
         if (count < 1) {
             THROW("command buffer needs minimum of 1 cl_buffers");
         }
 
-        output = (T*) malloc(size * sizeof(T));
+        output = (U8*) malloc(size * sizeof(T));
 
         // Create output memory buffer
         S32 status = 0;
@@ -41,7 +38,7 @@ namespace OpenCL {
     }
 
     template <typename T>
-    void CommandBuffer<T>::queue_data(CommandQueue& queue, USZ buffer_id, T* data, USZ length) {
+    void CommandBuffer<T>::queue_data(Queue& queue, USZ buffer_id, T* data, USZ length) {
         if (length > size) {
             THROW("command buffer overflow");
         }
@@ -60,7 +57,7 @@ namespace OpenCL {
     }
 
     template <typename T>
-    void CommandBuffer<T>::read_data(CommandQueue& queue, USZ buffer_id, USZ length) {
+    void CommandBuffer<T>::read_data(Queue& queue, USZ buffer_id, USZ length) {
         if (length > size) {
             THROW("command buffer overflow");
         }
@@ -82,15 +79,6 @@ namespace OpenCL {
     }
 
     template <typename T>
-    template <typename U>
-    void CommandBuffer<T>::bind_kernel(Kernel& kernel, USZ idx, const U& val) const {
-        S32 status = clSetKernelArg(kernel.get_kernel(), idx, sizeof(U), &val);
-        if (status != CL_SUCCESS) {
-            THROW("failed to pass kernel argument %i", status);
-        }
-    }
-
-    template <typename T>
     cl_mem& CommandBuffer<T>::operator[](USZ buffer_id) {
         if (buffer_id > count) {
             THROW("invalid buffer id");
@@ -101,7 +89,7 @@ namespace OpenCL {
 
     template <typename T>
     T*& CommandBuffer<T>::get_output_buffer() {
-        return output;
+        return (T*&) output;
     }
 
     template <typename T>

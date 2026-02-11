@@ -3,14 +3,14 @@
 
 namespace OpenCL {
 
-    struct CommandQueue {
+    struct Queue {
     private:
-        Context& context;
+        const Context& context;
         cl_command_queue queue = nullptr;
 
     public:
-        CommandQueue(Context& ctx);
-        ~CommandQueue();
+        Queue(const Context& ctx);
+        ~Queue();
 
         /*
             returns the OpenCL instance of the internal queue
@@ -25,7 +25,7 @@ namespace OpenCL {
         /*
             returns queue context
         */  
-        Context& get_context();
+        const Context& get_context() const;
     };
 
 };

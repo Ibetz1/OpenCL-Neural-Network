@@ -1,8 +1,7 @@
 #include "main.hpp"
 
 namespace OpenCL {
-
-    Context::Context(Device& dev) : device(dev) {
+    Context::Context(const Device& dev) : device(dev) {
         S32 status = 0;
         context = clCreateContext(0, 1, &device.get_id(), NULL, NULL, &status);
         if (status != CL_SUCCESS) {
@@ -17,11 +16,11 @@ namespace OpenCL {
         LOGI("released OpenCL context");
     }
 
-    Device& Context::get_device() {
-        return device;
+    const cl_device_id& Context::get_device_id() const {
+        return device.get_id();
     }
 
-    cl_context& Context::get_context() {
+    const cl_context& Context::get_context() const {
         return context;
     }
 

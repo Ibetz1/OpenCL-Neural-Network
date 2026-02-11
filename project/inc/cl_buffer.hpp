@@ -10,33 +10,26 @@ namespace OpenCL {
         std::vector<cl_mem> buffers;
         USZ size = 0;
         USZ count = 2;
-        T* output = nullptr;
+        U8* output = nullptr;
 
     public:
         CommandBuffer(Context& ctx, USZ size, USZ count = 2);
-
         ~CommandBuffer();
 
         /*
             push data onto a command queue from the command buffer
         */
-        void queue_data(CommandQueue& queue, USZ buffer_id, T* data, USZ length);
+        void queue_data(Queue& queue, USZ buffer_id, T* data, USZ length);
 
         /*
             read data popped from output buffer
         */
-        void read_data(CommandQueue& queue, USZ buffer_id, USZ length);
+        void read_data(Queue& queue, USZ buffer_id, USZ length);
 
         /*
             flushes the output buffer
         */
         void flush();
-
-        /*
-            bind kernel to command buffer
-        */
-        template <typename U>
-        void bind_kernel(Kernel& kernel, USZ idx, const U& val) const;
 
         /*
             returns input buffer at index

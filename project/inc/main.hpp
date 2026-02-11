@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <math.h>
 #include <vector>
+#include <unordered_map>
 
 #define LOGI(fmt, ...) do { printf("I: " fmt "\n",##__VA_ARGS__); } while (0)
 #define LOGE(fmt, ...) do { printf("E: " fmt "\n",##__VA_ARGS__); } while (0)
@@ -36,7 +37,7 @@ typedef double F64;
 #include "cl_context.hpp"
 #include "cl_program.hpp"
 #include "cl_queue.hpp"
-#include "cl_kernel.hpp"
+#include "cl_kernel_instance.hpp"
 #include "cl_buffer.hpp"
 
 #endif

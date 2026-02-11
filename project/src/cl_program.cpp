@@ -14,7 +14,7 @@ namespace OpenCL {
         }
 
         // build the program
-        status = clBuildProgram(program, 1, &ctx.get_device().get_id(), NULL, NULL, NULL);
+        status = clBuildProgram(program, 1, &ctx.get_device_id(), NULL, NULL, NULL);
         if (status != CL_SUCCESS) {
             char output[KB(4)] = { 0 };
             USZ output_size = 0;

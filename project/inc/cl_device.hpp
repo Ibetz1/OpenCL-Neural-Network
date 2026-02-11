@@ -34,7 +34,7 @@ namespace OpenCL {
         /*
             returns the openCL device ID
         */
-        cl_device_id& get_id();
+        const cl_device_id& get_id() const;
 
         /*
             returns the openCL platform ID by an index

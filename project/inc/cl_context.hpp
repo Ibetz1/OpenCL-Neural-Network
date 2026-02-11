@@ -6,21 +6,21 @@ namespace OpenCL {
     struct Context {
     private:
         cl_context context = nullptr;
-        Device& device;
+        const Device& device;
 
     public:
-        Context(Device& dev);
+        Context(const Device& dev);
         ~Context();
 
         /*
             returns the OpenCL device ID from its contained device
         */
-        Device& get_device();
+        const cl_device_id& get_device_id() const;
 
         /*
             returns the OpenCL context instance
         */
-        cl_context& get_context();
+        const cl_context& get_context() const;
     };
 
 };

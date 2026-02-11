@@ -55,7 +55,7 @@ namespace OpenCL {
         }
     }
 
-    cl_device_id& Device::get_id() {
+    const cl_device_id& Device::get_id() const {
         return device;
     }
 

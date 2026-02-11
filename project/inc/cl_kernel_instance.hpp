@@ -3,7 +3,7 @@
 
 namespace OpenCL {
 
-    struct Kernel {
+    struct KernelInstance {
     private:
         Program& program;
         cl_kernel kernel = nullptr;
@@ -11,23 +11,23 @@ namespace OpenCL {
         cl_event* bound_event = NULL;
 
     public:
-        Kernel(Program& program, const char* name);
-        ~Kernel();
+        KernelInstance(Program& program, const char* name);
+        ~KernelInstance();
 
         /*
             binds to another kernel for chaining
         */
-        void chain(Kernel& binding);
+        void chain(KernelInstance& binding);
 
         /*
             pushes queue to kernel running on device
         */
-        void push_to_device(CommandQueue& queue, USZ& local_size, const USZ& global_size);
+        void push_to_device(Queue& queue, USZ& local_size, const USZ& global_size);
 
         /*
             returns size of the work group
         */
-        USZ get_work_group_size(Device& device) const;
+        USZ get_work_group_size(const cl_device_id& device) const;
 
         /*
             returns openCL instance of the kernel
@@ -44,10 +44,14 @@ namespace OpenCL {
         */
         cl_event* get_bound_event();
 
-
+        /*
+            sets param to type T
+        */
+        template <typename T>
+        void bind_param(USZ idx, const T& val);
 
     };
-
 };
 
+#include "cl_kernel_instance.inl"
 #endif
